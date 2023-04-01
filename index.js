@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 require('dotenv').config()
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId} = require("mongodb");
+const { MongoClient, ObjectId} = require("mongodb");
 
 
 app.use(cors());
@@ -17,8 +17,8 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
 });
 
-const usersCollection = client.db("ContentCreator").collection("users");
-const contentCollection = client.db("ContentCreator").collection("content");
+const usersCollection = client.db("Task_Worth").collection("users");
+const contentCollection = client.db("Task_Worth").collection("Task");
 
 async function run() {
 
@@ -33,8 +33,9 @@ async function run() {
      console.error(error)
    }
    try {
-    app.post("/contents", async (req, res) => {
+    app.post("/add_task", async (req, res) => {
         const content = req.body;
+        
         const result = await contentCollection.insertOne(content);
         res.send(result);
       });
@@ -44,7 +45,7 @@ async function run() {
    }
 
    try {
-    app.get("/contents", async(req, res)=>{
+    app.get("/get_task", async(req, res)=>{
       const query ={};
       const contentdata = await contentCollection.find(query);
       const  result = await contentdata.toArray();
@@ -56,10 +57,12 @@ async function run() {
     
    }
    try {
-    app.get("/contents/:id", async(req, res)=>{
+    app.get("/get_task/:id", async(req, res)=>{
       const id = req.params.id
+      console.log('id', id);
       const query ={_id:new ObjectId(id)};
       const contentdata = await contentCollection.findOne(query);
+      console.log('data', contentdata);
       res.send(contentdata)
     })
    } catch (error) {
