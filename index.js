@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 const { MongoClient, ObjectId} = require("mongodb");
@@ -22,6 +23,32 @@ const contentCollection = client.db("Task_Worth").collection("Task");
 
 async function run() {
 
+             function varifyJwt(req, res, next){
+              const authHeaders = req.headers.authorization;
+              if(!authHeaders){
+                res.status(401).send({message:"unauthorize access"})
+              }
+              const token = authHeaders.split(' ')[1];
+              console.log(token);
+              jwt.verify(token, process.env.ACCESS_TOKEN, function(err, decoded){
+                  if(err){
+                    res.status(400).send({message:"unauthorize access"})
+                  }
+                  req.decoded = decoded;
+                  next()
+              })
+
+             }
+       try {
+            app.post('/jwt', async(req, res)=> {
+                  const user = req.body;
+                  const token = jwt.sign(user, process.env.ACCESS_TOKEN, {expiresIn:"2h"})
+                   res.send({token})
+                  console.log('token', token );
+            })
+       } catch (error) {
+        
+       }
    try {
     app.post("/users", async (req, res) => {
         const users = req.body;
@@ -33,10 +60,10 @@ async function run() {
      console.error(error)
    }
    try {
-    app.post("/add_task", async (req, res) => {
+    app.post("/add_task",varifyJwt, async (req, res) => {
         const content = req.body;
-        
         const result = await contentCollection.insertOne(content);
+        console.log('add data', result);
         res.send(result);
       });
     
@@ -71,9 +98,9 @@ async function run() {
    }
    app.put("/update_task/:id", async (req, res) => {
     const id = req.params.id;
-     console.log('id', id);
+    //  console.log('id', id);
     const updateContent = req.body;
-     console.log("data",updateContent);
+    //  console.log("data",updateContent);
     const filter = { _id: new ObjectId(id) };
     console.log('filter', filter);
     const options = { upsert: true }; 
