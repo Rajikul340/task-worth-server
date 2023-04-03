@@ -59,31 +59,33 @@ async function run() {
    try {
     app.get("/get_task/:id", async(req, res)=>{
       const id = req.params.id
-      console.log('id', id);
+      // console.log('id', id);
       const query ={_id:new ObjectId(id)};
       const contentdata = await contentCollection.findOne(query);
-      console.log('data', contentdata);
+      // console.log('data', contentdata);
       res.send(contentdata)
     })
    } catch (error) {
     console.error(error)
     
    }
-   app.put("/contents/:id", async (req, res) => {
+   app.put("/update_task/:id", async (req, res) => {
     const id = req.params.id;
      console.log('id', id);
     const updateContent = req.body;
-     console.log(updateContent);
+     console.log("data",updateContent);
     const filter = { _id: new ObjectId(id) };
+    console.log('filter', filter);
     const options = { upsert: true }; 
     const updatedUser = {
       $set: {
-        title: updateContent.title,
-        description: updateContent.description,
+        position: updateContent.position,
+        location: updateContent.location,
+        employmentType: updateContent.employmentType
       },
     };
   
-    const result = await usersCollection.updateOne(filter, updatedUser, options);
+    const result = await contentCollection.updateOne(filter, updatedUser, options);
     res.send(result);
   
   });
