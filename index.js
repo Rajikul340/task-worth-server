@@ -26,7 +26,7 @@ async function run() {
              function varifyJwt(req, res, next){
               const authHeaders = req.headers.authorization;
               if(!authHeaders){
-                res.status(401).send({message:"unauthorize access"})
+                res.status(401).send({message:" access"})
               }
               const token = authHeaders.split(' ')[1];
               console.log(token);
@@ -86,7 +86,6 @@ async function run() {
    try {
     app.get("/get_task/:id", async(req, res)=>{
       const id = req.params.id
-      // console.log('id', id);
       const query ={_id:new ObjectId(id)};
       const contentdata = await contentCollection.findOne(query);
       // console.log('data', contentdata);
@@ -108,7 +107,12 @@ async function run() {
       $set: {
         position: updateContent.position,
         location: updateContent.location,
-        employmentType: updateContent.employmentType
+        employmentType: updateContent.employmentType,
+        salaryRange: updateContent.salaryRange,
+        workLevel: updateContent.workLevel,
+        overview: updateContent.overview,
+        experience: updateContent.experience,
+        companyName: updateContent.companyName
       },
     };
   
